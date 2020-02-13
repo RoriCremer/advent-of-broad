@@ -1,24 +1,20 @@
-(ns day-2.core)
+(ns day-2.core
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]))
 
-  (require '[clojure.string :as str])
-  (.getCanonicalPath (clojure.java.io/file "."))
+(.getCanonicalPath (io/file "."))
 
-  (def input (str/split (slurp "./src/day_2/input.txt")  #"\n"))
+(def input (str/split (slurp "./src/day_2/input.txt")  #"\n"))
 
-  input
+(defn count-letters [text]
+  (loop [counts {} text text]
+    (if (empty? text)
+      counts
+      (when-let [letter (first text)]
+        (recur (assoc counts letter (inc (get counts letter 0)))
+               (rest text))))))
 
-  (defn count-letters [text]
-    (loop [counts {} text text]
-      (if (empty? text) counts
-        (let [letter (first text)]
-          (recur (assoc counts letter (inc (get counts letter 0)))
-                 (rest text))
-        )
-      )
-    )
-  )
-
-  (count-letters "wnlngevmfodamyiqpuzcrhstkg")
+(count-letters "wnlngevmfodamyiqpuzcrhstkg")
 
 (frequencies (keep #{2 3} (set(vals (frequencies "wnlngevmfodamyiqpuzcrhstkg")))))
 
@@ -33,8 +29,10 @@
 
 (apply * (vals (select-keys freeks [2 3])))
 
+(defn hole [])
+
 (defn holify [word]
   (loop [result [] n (count word)]
-  (if (zero? n)
-    (conj result (hole 0 word))
-    ))
+    (if (zero? n)
+      (conj result (hole 0 word))
+      "Now what?")))
