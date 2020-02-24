@@ -13,22 +13,22 @@
 
 (def re
   "Regular expression to parse a fabric from a line."
-  #"#([0-9]*) @ ([0-9]*),([0-9]*): ([0-9]*)x([0-9]*)")
+  #"#(\d*)\s@\s(\d*),(\d*):\s(\d*)x(\d*)")
 
 (defn parse-fabric
   "Parse LINE into a fabric map."
   [line]
-  (let [[id x y x-delta y-delta]
+  (let [[id x y Δx Δy]
         (->> line
              (re-find re)
              rest
              (map edn/read-string))]
-    (make-map id x y x-delta y-delta)))
+    (make-map id x y Δx Δy)))
 
 (def fabric
   "A sample fabric map."
   (parse-fabric line))
-;; => {:id 1, :x 7, :y 589, :x-delta 24, :y-delta 11}
+;; => {:id 1, :x 7, :y 589, :Δx 24, :Δy 11}
 
 (defn parse-input
   "Parse input file into a seq of fabric maps."
@@ -39,14 +39,14 @@
       (->> (map parse-fabric))))
 
 (first (parse-input "./src/day_3/input.txt"))
-;; => {:id 1, :x 7, :y 589, :x-delta 24, :y-delta 11}
+;; => {:id 1, :x 7, :y 589, :Δx 24, :Δy 11}
 
 (defn add-fabric
   "Add FABRIC to GRID."
-  [grid {:keys [x x-delta y y-delta] :as fabric}]
+  [grid {:keys [x Δx y Δy] :as fabric}]
   (apply merge
-         (for [x (range x (+ x x-delta))
-               y (range y (+ y y-delta))]
+         (for [x (range x (+ x Δx))
+               y (range y (+ y Δy))]
            (assoc grid [x y] ((fnil inc 0) (grid [x y]))))))
 
 (add-fabric {} fabric)
