@@ -1,6 +1,15 @@
 (ns day-2.core
   (:require [clojure.java.io :as io]
+            [clojure.pprint :refer [pprint]]
             [clojure.string :as str]))
+
+(defmacro dump
+  "Dump [EXPRESSION VALUE] where VALUE is EXPRESSION's value."
+  [expression]
+  `(let [x# ~expression]
+     (do
+       (pprint ['~expression x#])
+       x#)))
 
 (.getCanonicalPath (io/file "."))
 
@@ -29,10 +38,33 @@
 
 (apply * (vals (select-keys freeks [2 3])))
 
-(defn hole [])
+(def word "ymdrcyapvwfloiuktanxzjsieb")
+(defn hole [n] (str (subs word 0 n) "_" (subs word (+ n 1))))
+(hole 0)
+(hole 25)
+'(hole 26)
 
 (defn holify [word]
-  (loop [result [] n (count word)]
-    (if (zero? n)
-      (conj result (hole 0 word))
-      "Now what?")))
+  (letfn [(hole [n] (str (subs word 0 n) "_" (subs word (+ n 1))))]
+    (loop [result [] n (- (count word) 1)]
+      (if (zero? n)
+        (conj result (hole 0))
+        (recur (conj result (hole n)) (- n 1))))))
+
+(def hole-seq (mapcat holify input))
+(def hole-set (set (mapcat holify input)))
+
+(dump [(count hole-seq) (count hole-set)])
+
+(defn solve
+  [holified]
+  (loop [words holified seen #{}]
+    (when-let [w (first words)]
+      (if (seen w)
+        (str/replace w "_" "")
+        (recur (rest words) (conj seen w))))))
+
+(solve ["a" "a"])
+(solve ["a" "z"])
+
+(solve hole-seq)
