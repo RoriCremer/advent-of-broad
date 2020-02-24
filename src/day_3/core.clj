@@ -7,8 +7,13 @@
   [& symbols]
   (zipmap (map keyword symbols) symbols))
 
-(def line "#1 @ 7,589: 24x11")
-(def re #"#([0-9]*) @ ([0-9]*),([0-9]*): ([0-9]*)x([0-9]*)")
+(def line
+  "Sample line from the input.txt file."
+  "#1 @ 7,589: 24x11")
+
+(def re
+  "Regular expression to parse a fabric from a line."
+  #"#([0-9]*) @ ([0-9]*),([0-9]*): ([0-9]*)x([0-9]*)")
 
 (defn parse-fabric
   "Parse LINE into a fabric map."
@@ -20,7 +25,9 @@
              (map edn/read-string))]
     (make-map id x y x-delta y-delta)))
 
-(def fabric (parse-fabric line))
+(def fabric
+  "A sample fabric map."
+  (parse-fabric line))
 ;; => {:id 1, :x 7, :y 589, :x-delta 24, :y-delta 11}
 
 (defn parse-input
@@ -31,7 +38,8 @@
       (str/split #"\n")
       (->> (map parse-fabric))))
 
-(parse-input "./src/day_3/input.txt")
+(first (parse-input "./src/day_3/input.txt"))
+;; => {:id 1, :x 7, :y 589, :x-delta 24, :y-delta 11}
 
 (defn add-fabric
   "Add FABRIC to GRID."
@@ -41,4 +49,4 @@
                y (range y (+ y y-delta))]
            (assoc grid [x y] ((fnil inc 0) (grid [x y]))))))
 
-(add-fabric {} {:id 1, :x 7, :y 589, :x-delta 24, :y-delta 11})
+(add-fabric {} fabric)
