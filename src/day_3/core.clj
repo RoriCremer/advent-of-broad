@@ -7,7 +7,7 @@
   [& symbols]
   (zipmap (map keyword symbols) symbols))
 
-(def fabric "#1 @ 7,589: 24x11")
+(def line "#1 @ 7,589: 24x11")
 (def re #"#([0-9]*) @ ([0-9]*),([0-9]*): ([0-9]*)x([0-9]*)")
 
 (defn parse-fabric
@@ -20,7 +20,7 @@
              (map edn/read-string))]
     (make-map id x y x-delta y-delta)))
 
-(parse-fabric fabric)
+(def fabric (parse-fabric line))
 ;; => {:id 1, :x 7, :y 589, :x-delta 24, :y-delta 11}
 
 (defn parse-input
