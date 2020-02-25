@@ -13,7 +13,7 @@
 
 (def re
   "Regular expression to parse a fabric from a line."
-  #"#(\d*)\s@\s(\d*),(\d*):\s(\d*)x(\d*)")
+  #"#(\d+)\s@\s(\d+),(\d+):\s(\d+)x(\d+)")
 
 (defn parse-fabric
   "Parse LINE into a fabric map."
