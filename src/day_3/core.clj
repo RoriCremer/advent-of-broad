@@ -44,9 +44,8 @@
 (defn add-fabric
   "Add FABRIC to GRID."
   [grid {:keys [x Δx y Δy] :as fabric}]
-  (apply merge
-         (for [x (range x (+ x Δx))
-               y (range y (+ y Δy))]
-           (assoc grid [x y] ((fnil inc 0) (grid [x y]))))))
+  (apply merge (for [x (range x (+ x Δx))
+                     y (range y (+ y Δy))]
+                 (update grid [x y] (fnil inc 0)))))
 
 (add-fabric {} fabric)
