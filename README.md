@@ -11,3 +11,7 @@ advent-of-broad/src/day_1
 ## Day 2
 
 advent-of-broad/src/day_2
+
+## Day 3
+
+advent-of-broad/src/day_3
