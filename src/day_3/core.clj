@@ -68,9 +68,7 @@
 (defn check-fabric
   [grid {:keys [id x Δx y Δy] :as fabric}]
   (when (every? (fn [xy] (== 1 (grid xy)))
-                (for [x (range x (+ x Δx))
-                      y (range y (+ y Δy))]
-                  [x y]))
+                (fabric->coords fabric))
     id))
 
 (remove nil?
