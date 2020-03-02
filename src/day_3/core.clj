@@ -37,19 +37,18 @@
 (defn parse-input
   "Parse input file into a seq of fabric maps."
   [file]
-  (-> file
-      slurp
-      (str/split #"\n")
+  (-> file slurp (str/split #"\n")
       (->> (map parse-fabric))))
 
 (first (parse-input "./src/day_3/input.txt"))
 ;; => {:id 1, :x 7, :y 589, :Δx 24, :Δy 11}
 
-(def the-fabrics
-  (parse-input "./src/day_3/input.txt"))
+(def the-fabrics (parse-input "./src/day_3/input.txt"))
 
 (count the-fabrics)
 
+;; Nick's idea.
+;;
 (defn fabric->coords
   "The sequence of coordinates of 'square inches' of FABRIC."
   [{:keys [x Δx y Δy] :as fabric}]
@@ -59,17 +58,23 @@
 
 (def grid
   "Map of coordinates to the fabric count overlapping there."
-  (frequencies
-    (mapcat fabric->coords the-fabrics)))
+  (frequencies (mapcat fabric->coords the-fabrics)))
 
-(count (filter (fn [n] (> n 1)) (vals grid)))
-;; => 117948
+(def square-inches-of-fabric-overlap
+  "1st Answer: How many square inches of fabric overlap?"
+  (count (filter (fn [n] (> n 1)) (vals grid))))
 
-(defn check-fabric
+square-inches-of-fabric-overlap         ; => 117948
+
+(defn non-overlapping-fabric?
+  "Nil or the ID of a fabric when it doesn't overlap."
   [{:keys [id x Δx y Δy] :as fabric}]
   (when (every? (fn [xy] (== 1 (grid xy)))
                 (fabric->coords fabric))
     id))
 
-(remove nil? (map check-fabric the-fabrics))
-;; => (567)
+(def ids-of-fabrics-that-do-not-overlap
+  "2nd Answer: Find fabrics that do not overlap."
+  (remove nil? (map non-overlapping-fabric? the-fabrics)))
+
+ids-of-fabrics-that-do-not-overlap      ; => (567)
