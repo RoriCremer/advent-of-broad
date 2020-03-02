@@ -45,35 +45,35 @@
 (first (parse-input "./src/day_3/input.txt"))
 ;; => {:id 1, :x 7, :y 589, :Δx 24, :Δy 11}
 
-(defn add-fabric-old
-  "Add FABRIC to GRID."
-  [grid {:keys [x Δx y Δy] :as fabric}]
-  (apply merge (for [x (range x (+ x Δx))
-                     y (range y (+ y Δy))]
-                 (update grid [x y] (fnil inc 0)))))
-
-(defn fabric->coords
-  "Add FABRIC."
-  [{:keys [id x Δx y Δy] :as fabric}]
-  (for [x (range x (+ x Δx))
-        y (range y (+ y Δy))]
-    [id x y]))
-
 (def the-fabrics
   (parse-input "./src/day_3/input.txt"))
 
 (count the-fabrics)
 
-(def overlaps
+(defn fabric->coords
+  "The sequence of coordinates of 'square inches' of FABRIC."
+  [{:keys [x Δx y Δy] :as fabric}]
+  (for [x (range x (+ x Δx))
+        y (range y (+ y Δy))]
+    [x y]))
+
+(def grid
+  "Map of coordinates to the fabric count overlapping there."
   (frequencies
     (mapcat fabric->coords the-fabrics)))
 
-(count
-  (filter
-    (fn [[_ v]] (> v 1))
-    overlaps))
+(count (filter (fn [n] (> n 1)) (vals grid)))
 ;; => 117948
 
-(first overlaps)
+(defn check-fabric
+  [grid {:keys [id x Δx y Δy] :as fabric}]
+  (when (every? (fn [xy] (== 1 (grid xy)))
+                (for [x (range x (+ x Δx))
+                      y (range y (+ y Δy))]
+                  [x y]))
+    id))
 
-(count overlaps)
+(remove nil?
+        (map (partial check-fabric grid)
+             the-fabrics))
+;; => (567)
