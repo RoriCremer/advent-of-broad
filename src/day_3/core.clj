@@ -66,12 +66,10 @@
 ;; => 117948
 
 (defn check-fabric
-  [grid {:keys [id x Δx y Δy] :as fabric}]
+  [{:keys [id x Δx y Δy] :as fabric}]
   (when (every? (fn [xy] (== 1 (grid xy)))
                 (fabric->coords fabric))
     id))
 
-(remove nil?
-        (map (partial check-fabric grid)
-             the-fabrics))
+(remove nil? (map check-fabric the-fabrics))
 ;; => (567)
