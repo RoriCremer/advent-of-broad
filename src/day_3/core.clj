@@ -45,11 +45,35 @@
 (first (parse-input "./src/day_3/input.txt"))
 ;; => {:id 1, :x 7, :y 589, :Δx 24, :Δy 11}
 
-(defn add-fabric
+(defn add-fabric-old
   "Add FABRIC to GRID."
   [grid {:keys [x Δx y Δy] :as fabric}]
   (apply merge (for [x (range x (+ x Δx))
                      y (range y (+ y Δy))]
                  (update grid [x y] (fnil inc 0)))))
 
-(add-fabric {} fabric)
+(defn fabric->coords
+  "Add FABRIC."
+  [{:keys [id x Δx y Δy] :as fabric}]
+  (for [x (range x (+ x Δx))
+        y (range y (+ y Δy))]
+    [id x y]))
+
+(def the-fabrics
+  (parse-input "./src/day_3/input.txt"))
+
+(count the-fabrics)
+
+(def overlaps
+  (frequencies
+    (mapcat fabric->coords the-fabrics)))
+
+(count
+  (filter
+    (fn [[_ v]] (> v 1))
+    overlaps))
+;; => 117948
+
+(first overlaps)
+
+(count overlaps)
