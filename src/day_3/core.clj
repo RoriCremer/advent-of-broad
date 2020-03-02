@@ -9,11 +9,15 @@
 
 (def line
   "Sample line from the input.txt file."
-  "#1 @ 7,589: 24x11")
+  (do
+    "id   x   y  Δx Δy"
+    "#1 @ 7,589: 24x11"))
 
 (def re
   "Regular expression to parse a fabric from a line."
-  #"#(\d+)\s@\s(\d+),(\d+):\s(\d+)x(\d+)")
+  (do
+    "    id         x     y      Δx    Δy"
+    #"#(\d+)\s@\s(\d+),(\d+):\s(\d+)x(\d+)"))
 
 (defn parse-fabric
   "Parse LINE into a fabric map."
