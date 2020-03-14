@@ -26,7 +26,16 @@
 (awake (nth input 2))
 ;; => ["[1518-02-08 00:28] wakes up" "1518-02-08 00:28"]
 
+(def time-parser
+  (doto (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm")
+    (.setTimeZone (java.util.TimeZone/getTimeZone "GMT"))))
+
+(defn string->instant
+  [s]
+  (.toInstant (.parse time-parser s)))
+
 (defn schedule->shifts
+  "Parse LINES from some schedule into shifts."
   [lines]
   (loop [lines lines
          shift nil
@@ -35,21 +44,42 @@
     (let [[guard sleep awake] (which (or (first lines) "fnord"))]
       (cond guard (let [[_ time id] guard]
                     (recur (rest lines)
-                           {:id id :time time :naps []}
+                           {:id id :time (string->instant time) :naps []}
                            nil
                            (conj result shift)))
             sleep (let [[_ time] sleep]
                     (recur (rest lines)
                            shift
-                           {:sleep time}
+                           {:sleep (string->instant time)}
                            result))
             awake (let [[_ time] awake
-                        nap (assoc nap :awake time)]
+                        zzz (assoc nap :awake (string->instant time))]
                     (recur (rest lines)
-                           (update shift :naps conj nap)
+                           (update shift :naps conj zzz)
                            nil
                            result))
             :else (rest result)))))
 
 (def shifts
   (schedule->shifts input))
+
+(first shifts)
+;; => {:id "1439",
+;;     :time #object[java.time.Instant 0x456018c6 "1518-02-18T00:00:00Z"],
+;;     :naps [{:sleep
+;;             #object[java.time.Instant 0x5db928b2 "1518-02-18T00:06:00Z"],
+;;             :awake
+;;             #object[java.time.Instant 0x7ccdbf5f "1518-02-18T00:28:00Z"]}]}
+
+(defn minutes-between
+  "The number of minutes between EARLIER and LATER."
+  [earlier later]
+  (.between java.time.temporal.ChronoUnit/MINUTES earlier later))
+
+((juxt :sleep :awake) (first (:naps (first shifts))))
+;; => [#object[java.time.Instant 0x5db928b2 "1518-02-18T00:06:00Z"]
+;;     #object[java.time.Instant 0x7ccdbf5f "1518-02-18T00:28:00Z"]]
+
+(apply minutes-between
+       ((juxt :sleep :awake) (first (:naps (first shifts)))))
+;; => 22
