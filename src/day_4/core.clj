@@ -83,3 +83,71 @@
 (apply minutes-between
        ((juxt :sleep :awake) (first (:naps (first shifts)))))
 ;; => 22
+
+(defn nap->minutes
+  [{:keys [awake sleep] :as _nap}]
+  [sleep (minutes-between sleep awake)])
+
+(nap->minutes (first (:naps (first shifts))))
+
+(first (partition-by :id shifts))
+
+(defn collect-shifts
+  [m {:keys [id naps time] :as _shift}]
+  (update m id assoc time (into {} (map nap->minutes naps))))
+
+(defn by-guard
+  [shifts]
+  (reduce collect-shifts {} shifts))
+
+(def shifts-by-guard
+  (by-guard shifts))
+
+shifts-by-guard
+
+(defn sleepiest-guard
+  [shifts-by-guard]
+  (->> (zipmap (keys shifts-by-guard)
+               (->> shifts-by-guard
+                    vals
+                    (map vals)
+                    (map (partial apply merge))
+                    (map vals)
+                    (map (partial apply +))))
+       (sort-by second)
+       last
+       first))
+
+(def sleepiest (sleepiest-guard shifts-by-guard))
+
+sleepiest
+
+(defn napiest-minute
+  [sleepiest shifts-by-guard]
+  (letfn [(minute [instant]
+            (-> instant
+                (.atZone java.time.ZoneOffset/UTC)
+                .getMinute))]
+    (let [instants (->> sleepiest
+                        shifts-by-guard
+                        vals
+                        (apply merge))
+          minutes (->> instants keys (map minute))]
+      (->> instants
+           vals
+           (map + minutes)
+           (zipmap minutes)
+           (mapcat (partial apply range))
+           frequencies
+           (sort-by second)
+           last
+           first))))
+
+(def napiest
+  (napiest-minute sleepiest shifts-by-guard))
+
+(def answer
+  (* (edn/read-string sleepiest) napiest))
+
+answer
+;; => 77084
